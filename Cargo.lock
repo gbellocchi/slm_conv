@@ -300,7 +300,7 @@ dependencies = [
 
 [[package]]
 name = "slm_conv"
-version = "0.3.1"
+version = "0.3.1-dev"
 dependencies = [
  "assert_cmd 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
