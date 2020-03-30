@@ -28,13 +28,17 @@ fn mem_from_file(path: &str, swap_endianness: bool) -> Result<HashMap<usize, Str
         let (addr, indexed) = if v[0].chars().nth(0) == Some('@') {
             let idx_str = &v[0][1..];
             let idx = usize::from_str_radix(idx_str, 16).unwrap();
-            assert_eq!(data_word.len(), 8, "incorrect word length at index {} of file {}", idx, path);
             (idx * 4, true)
         } else {
             let addr_str = &v[0].trim_start_matches("0x");
-            assert_eq!(data_word.len(), 8, "incorrect word length at address {} of file {}", addr_str, path);
             (usize::from_str_radix(addr_str, 16).unwrap(), false)
         };
+        let key_str = || if indexed {
+            format!("index @{:x}", addr/4)
+        } else {
+            format!("address 0x{:x}", addr)
+        };
+        assert_eq!(data_word.len(), 8, "incorrect word length for {} of file {}", key_str(), path);
         let data = if swap_endianness {
             // TODO: faster and less copies?
             let inp: Vec<char> = data_word.chars().collect();
@@ -46,11 +50,6 @@ fn mem_from_file(path: &str, swap_endianness: bool) -> Result<HashMap<usize, Str
             oup
         } else {
             data_word
-        };
-        let key_str = || if indexed {
-            format!("index @{:x}", addr/4)
-        } else {
-            format!("address 0x{:x}", addr)
         };
         // Assert that the SLM line does not overwrite an existing entry.
         assert_eq!(mem.insert(addr, data), None, "duplicate entry for {} of file {}", key_str(), path);
